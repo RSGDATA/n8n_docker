@@ -1,18 +1,20 @@
 FROM n8nio/n8n:latest
 
-# we need perms to write into image paths
 USER root
+WORKDIR /app
 
-# put the file in every likely static dir
-# (some builds use /public, some /dist/public, some copy to a cache dir at runtime)
-COPY google5cdea5b341b11800.html /usr/local/lib/node_modules/n8n/public/google5cdea5b341b11800.html
-COPY google5cdea5b341b11800.html /usr/local/lib/node_modules/n8n/dist/public/google5cdea5b341b11800.html
-COPY google5cdea5b341b11800.html /home/node/.cache/n8n/public/google5cdea5b341b11800.html
+# Copy the Google verify file and the proxy server
+COPY google5cdea5b341b11800.html /app/google5cdea5b341b11800.html
+COPY server.js /app/server.js
 
-# make sure the running user owns these
-RUN mkdir -p /home/node/.cache/n8n/public && \
-    chown -R node:node /home/node/.cache/n8n && \
-    chown -R node:node /usr/local/lib/node_modules/n8n
+# Install minimal deps for the proxy
+RUN npm init -y && npm install express http-proxy-middleware
 
-# drop back to the non-root user n8n runs as
+# Run n8n on an internal port; proxy will listen on $PORT
+ENV N8N_PORT=5679
+
+# Drop back to non-root (n8n runs as node)
 USER node
+
+# Start n8n in the background, then start the proxy
+CMD ["bash","-lc","n8n start & node /app/server.js"]
