@@ -1,12 +1,13 @@
 FROM n8nio/n8n:latest
 
-# keep the verify file in a safe place inside the image
-COPY google5cdea5b341b11800.html /opt/gsverify.html
+# Put the verify file somewhere writable by 'node'
+COPY google5cdea5b341b11800.html /home/node/gsverify.html
 
-# wrapper that copies the file where n8n serves static assets, then starts n8n
-COPY start-with-verify.sh /start-with-verify.sh
-RUN chmod +x /start-with-verify.sh
+# Copy the wrapper script and mark it executable at copy-time (no RUN chmod needed)
+COPY --chmod=0755 start-with-verify.sh /home/node/start-with-verify.sh
 
-ENTRYPOINT ["/start-with-verify.sh"]
+# Run our wrapper instead of the default entrypoint
+ENTRYPOINT ["/home/node/start-with-verify.sh"]
+
 
 
