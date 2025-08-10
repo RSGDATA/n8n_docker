@@ -1,13 +1,11 @@
 FROM n8nio/n8n:latest
+USER root
 
-# Put the verify file somewhere writable by 'node'
-COPY google5cdea5b341b11800.html /home/node/gsverify.html
+# Put the Google verify file where this image serves static assets
+COPY google5cdea5b341b11800.html /home/node/.cache/n8n/public/google5cdea5b341b11800.html
 
-# Copy the wrapper script and mark it executable at copy-time (no RUN chmod needed)
-COPY --chmod=0755 start-with-verify.sh /home/node/start-with-verify.sh
+# Make sure the node user owns it
+RUN mkdir -p /home/node/.cache/n8n/public && \
+    chown -R node:node /home/node/.cache/n8n
 
-# Run our wrapper instead of the default entrypoint
-ENTRYPOINT ["/home/node/start-with-verify.sh"]
-
-
-
+USER node
