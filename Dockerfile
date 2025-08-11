@@ -13,6 +13,5 @@ RUN npm init -y && npm install express http-proxy-middleware
 # Make sure n8n listens on its internal port (matches what you've set in Render)
 ENV N8N_PORT=5678
 
-# Stay as root user to avoid path issues
-# Use node directly since we're staying as root
-CMD ["node", "/app/server.js"]
+# Debug: Let's see what's available and try different approaches
+CMD ["sh", "-c", "echo 'PATH:' $PATH && echo 'which node:' $(which node 2>/dev/null || echo 'not found') && echo 'ls /usr/local/bin:' && ls -la /usr/local/bin/ | grep node && echo 'Starting server...' && exec $(which node || echo '/usr/local/bin/node') /app/server.js"]
