@@ -10,11 +10,17 @@ COPY --chown=node:node server.js /app/server.js
 # Install the tiny proxy deps as root first
 RUN npm init -y && npm install express http-proxy-middleware
 
+# Find where node is installed and create a symlink
+RUN which node && ln -sf $(which node) /usr/local/bin/node || true
+
 # Make sure n8n listens on its internal port (matches what you've set in Render)
 ENV N8N_PORT=5678
+
+# Set PATH to include common node locations
+ENV PATH="/usr/local/bin:/opt/nodejs/bin:$PATH"
 
 # Drop to the non-root user used by the base image
 USER node
 
-# Use node directly since it should be in PATH for the node user
-CMD ["node", "/app/server.js"]
+# Use the full path or let PATH resolve it
+CMD ["/usr/local/bin/node", "/app/server.js"]
