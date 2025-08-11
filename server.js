@@ -9,10 +9,11 @@ const app = express();
 // n8n listens internally; keep it at 5678 (matches your env)
 const N8N_INTERNAL_PORT = process.env.N8N_PORT || 5678;
 
-// start n8n as a child process (no shell)
+// start n8n as a child process (use shell to find n8n in PATH)
 const n8n = spawn('n8n', ['start'], {
   stdio: 'inherit',           // pipe logs to container logs
   env: process.env,           // pass through environment
+  shell: true,                // use shell to resolve PATH
 });
 
 n8n.on('exit', (code) => {
